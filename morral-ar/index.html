@@ -80,7 +80,7 @@
   <a-scene
     mindar-image="imageTargetSrc: ./targets/morral.mind; autoStart: true; uiScanning: no; uiLoading: no;"
     color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights"
+    renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: true"
   >
@@ -95,12 +95,13 @@
 
       <!--
         El modelo del carro viene "acostado" (eje Y-up de fábrica), así que
-        este primer <a-entity> lo endereza -90° en X para que se vea de pie
-        saliendo de la imagen del morral. El segundo <a-entity> (adentro) es
-        el que gira sobre su propio eje continuamente.
+        este primer <a-entity> lo endereza -90° en X para que se vea de pie,
+        flotando un poco enfrente del morral (position z). El segundo
+        <a-entity> (adentro) gira sobre el eje Z local, que equivale al eje
+        vertical del mundo real → efecto "vitrina/turntable" (giro horizontal).
       -->
-      <a-entity rotation="-90 0 0" position="0 0 0.1">
-        <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+      <a-entity rotation="-90 0 0" position="0 0 0.15">
+        <a-entity animation="property: rotation; to: 0 0 360; loop: true; dur: 8000; easing: linear">
           <a-gltf-model
             id="modelo3d"
             src="#modeloMorral"
