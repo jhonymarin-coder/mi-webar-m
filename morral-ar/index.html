@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Morral AR</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: #000;
+      font-family: sans-serif;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    #status {
+      margin-top: 16px;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      transition: opacity 0.3s ease;
+    }
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      text-align: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    #loading img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 16px;
+      animation: pulse 1.4s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+  </style>
+
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+</head>
+<body>
+
+  <div id="loading">
+    <img src="https://cdn-icons-png.flaticon.com/512/1046/1046857.png" alt="cargando" />
+    <p>Apunta la cámara al frente del morral...</p>
+  </div>
+
+  <div id="overlay">
+    <div id="status">Buscando el morral 🔍</div>
+  </div>
+
+  <a-scene
+    mindar-image="imageTargetSrc: ./targets/morral.mind; autoStart: true; uiScanning: no; uiLoading: no;"
+    color-space="sRGB"
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+  >
+
+    <a-assets>
+      <a-asset-item id="modeloMorral" src="./assets/modelo.glb"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="far: 10000; objects: .clickable"></a-camera>
+
+    <a-entity mindar-image-target="targetIndex: 0">
+
+      <!--
+        El carro gira sobre su eje Y (vertical real), mostrando frente,
+        lado y parte trasera — efecto "vitrina/turntable" clásico. Flota
+        un poco enfrente del morral gracias al position z.
+      -->
+      <a-entity position="0 0 0.15">
+        <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear">
+          <a-gltf-model
+            id="modelo3d"
+            src="#modeloMorral"
+            scale="0.001 0.001 0.001"
+            position="0.02 -0.06 0.03"
+          ></a-gltf-model>
+        </a-entity>
+      </a-entity>
+
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    const loading = document.getElementById('loading');
+    const status = document.getElementById('status');
+    const sceneEl = document.querySelector('a-scene');
+
+    sceneEl.addEventListener('arReady', () => {
+      loading.style.display = 'none';
+    });
+
+    sceneEl.addEventListener('arError', (e) => {
+      loading.innerHTML = '<p>⚠️ No se pudo iniciar la cámara. Revisa permisos y que estés en HTTPS.</p>';
+    });
+
+    const target = document.querySelector('[mindar-image-target]');
+
+    target.addEventListener('targetFound', () => {
+      status.textContent = '¡Morral detectado! ✅';
+      status.style.opacity = '1';
+    });
+
+    target.addEventListener('targetLost', () => {
+      status.textContent = 'Buscando el morral 🔍';
+    });
+  </script>
+
+</body>
+</html>
